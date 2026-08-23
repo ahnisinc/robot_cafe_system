@@ -1,0 +1,274 @@
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+
+    margin: 0;
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    background:
+        #151515;
+
+    color: white;
+}
+
+
+header {
+
+    padding: 20px 40px;
+
+    background:
+        #211812;
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+}
+
+
+header h1 {
+
+    margin: 0;
+
+    color:
+        #d7a86e;
+}
+
+
+.status {
+
+    padding:
+        10px 20px;
+
+    border-radius:
+        20px;
+
+    background:
+        #236b35;
+}
+
+
+main {
+
+    max-width:
+        1000px;
+
+    margin:
+        40px auto;
+
+    padding:
+        20px;
+}
+
+
+section {
+
+    background:
+        #242424;
+
+    padding:
+        25px;
+
+    margin-bottom:
+        25px;
+
+    border-radius:
+        15px;
+}
+
+
+.menu {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap:
+        20px;
+}
+
+
+.menu h2 {
+
+    grid-column:
+        1 / -1;
+}
+
+
+.menu-item {
+
+    border: none;
+
+    border-radius:
+        15px;
+
+    padding:
+        30px;
+
+    background:
+        #3a2619;
+
+    color:
+        white;
+
+    cursor: pointer;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        10px;
+
+    align-items:
+        center;
+}
+
+
+.menu-item:hover {
+
+    background:
+        #624129;
+}
+
+
+.menu-item span {
+
+    font-size:
+        45px;
+}
+
+
+.menu-item strong {
+
+    font-size:
+        22px;
+}
+
+
+.menu-item small {
+
+    color:
+        #c9b5a3;
+}
+
+
+.progress-bar {
+
+    width:
+        100%;
+
+    height:
+        30px;
+
+    background:
+        #444;
+
+    border-radius:
+        15px;
+
+    overflow:
+        hidden;
+}
+
+
+#progress-fill {
+
+    width:
+        0%;
+
+    height:
+        100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #b8793e,
+            #e8bd83
+        );
+
+    transition:
+        width 0.3s;
+}
+
+
+#progress-text {
+
+    text-align:
+        center;
+
+    font-size:
+        30px;
+
+    margin:
+        15px;
+}
+
+
+#process-step {
+
+    font-size:
+        22px;
+
+    text-align:
+        center;
+}
+
+
+#process-message {
+
+    text-align:
+        center;
+
+    color:
+        #bbb;
+
+    margin-top:
+        10px;
+}
+
+
+.emergency {
+
+    text-align:
+        center;
+
+    background:
+        #301515;
+}
+
+
+.emergency button {
+
+    background:
+        #c62828;
+
+    color:
+        white;
+
+    border: none;
+
+    border-radius:
+        10px;
+
+    padding:
+        20px 60px;
+
+    font-size:
+        22px;
+
+    cursor: pointer;
+}

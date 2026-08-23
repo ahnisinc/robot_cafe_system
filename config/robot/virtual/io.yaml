@@ -1,0 +1,13 @@
+outputs:
+
+  coffee_start: 1
+  milk_start: 2
+  gripper_open: 3
+  gripper_close: 4
+
+inputs:
+
+  coffee_ready: 1
+  milk_ready: 2
+  gripper_opened: 3
+  gripper_closed: 4

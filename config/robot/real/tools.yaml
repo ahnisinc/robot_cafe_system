@@ -1,0 +1,7 @@
+# Replace after actual M0609 controller setup.
+
+tcp:
+  name: TODO_REAL_TCP
+
+tool:
+  name: TODO_REAL_TOOL

@@ -1,0 +1,23 @@
+# ======================================================
+# REAL I/O
+# ======================================================
+#
+# DO NOT assume these numbers match your installation.
+#
+# Confirm electrical wiring and controller mapping first.
+#
+# ======================================================
+
+outputs:
+
+  coffee_start: TODO
+  milk_start: TODO
+  gripper_open: TODO
+  gripper_close: TODO
+
+inputs:
+
+  coffee_ready: TODO
+  milk_ready: TODO
+  gripper_opened: TODO
+  gripper_closed: TODO

@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <title>ROS2 Dashboard</title>
+
+    <style>
+        body {
+            background: #20262E;
+        }
+
+        .card {
+            background: #2B313A;
+            color: white;
+            border: none;
+        }
+
+        .card-title {
+            color: #9fb3c8;
+        }
+
+        .navbar {
+            background: #11161C;
+        }
+
+        .camera {
+            height: 350px;
+            background: #111;
+            border-radius: 10px;
+        }
+
+        .logbox {
+
+            height: 200px;
+            overflow: auto;
+            font-family: monospace;
+        }
+
+        .control button {
+
+            width: 120px;
+            margin: 5px;
+        }
+
+        .big {
+
+            font-size: 32px;
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-dark">
+
+        <div class="container-fluid">
+
+            <span class="navbar-brand">
+
+                🤖 COBOT Dashboard
+
+            </span>
+
+            <span class="text-success">
+
+                ● Connected
+
+            </span>
+
+        </div>
+
+    </nav>
+
+    <div class="container-fluid mt-3">
+
+        <div class="row g-3">
+
+            <div class="col-md">
+
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <div class="card-title">
+
+                            🔋 Battery
+
+                        </div>
+
+                        <div class="big">
+
+                            95%
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md">
+
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <div class="card-title">
+
+                            ⚙ Mode
+
+                        </div>
+
+                        <div class="big">
+
+                            AUTO
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md">
+
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <div class="card-title">
+
+                            🚀 Speed
+
+                        </div>
+
+                        <div class="big">
+
+                            0.35
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md">
+
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <div class="card-title">
+
+                            📍 Position
+
+                        </div>
+
+                        <div class="big">
+
+                            Home
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row mt-3">
+
+            <div class="col-lg-8">
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        📷 Camera
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="camera d-flex justify-content-center align-items-center">
+
+                            Camera Stream
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        Robot Status
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <table class="table table-dark table-borderless">
+
+                            <tr>
+
+                                <td>State</td>
+
+                                <td>RUNNING</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Motor</td>
+
+                                <td>ON</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Temperature</td>
+
+                                <td>36°C</td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Voltage</td>
+
+                                <td>48V</td>
+
+                            </tr>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row mt-3">
+
+            <div class="col-lg-8">
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        📄 Robot Log
+
+                    </div>
+
+                    <div class="card-body logbox">
+
+                        [10:21:00] Robot Ready<br>
+
+                        [10:22:11] Mission Start<br>
+
+                        [10:23:55] Move Complete<br>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        🎮 Manual Control
+
+                    </div>
+
+                    <div class="card-body control text-center">
+
+                        <button class="btn btn-success">START</button>
+
+                        <button class="btn btn-danger">STOP</button>
+
+                        <button class="btn btn-warning">HOME</button>
+
+                        <button class="btn btn-primary">RESET</button>
+
+                        <button class="btn btn-dark w-100">
+
+                            🚨 EMERGENCY STOP
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
+<!doctype html>

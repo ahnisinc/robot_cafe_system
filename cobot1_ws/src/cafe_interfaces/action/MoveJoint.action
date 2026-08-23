@@ -1,0 +1,27 @@
+# Goal
+
+float64[6] position
+
+float64 velocity
+float64 acceleration
+
+float64 time
+float64 radius
+
+int8 mode
+int8 blend_type
+int8 sync_type
+
+---
+# Result
+
+bool success
+int32 error_code
+string message
+
+---
+# Feedback
+
+float64 progress
+float64[6] current_position
+int8 motion_status

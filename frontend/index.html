@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+
+<head>
+
+    <!-- 한글 인코딩 설정 -->
+    <meta charset="UTF-8">
+
+    <!-- 모바일 화면 크기에 맞게 표시 -->
+    <meta name="viewport" content="width=device-width,
+                 initial-scale=1.0">
+
+    <!-- 브라우저 제목 -->
+    <title>
+        Robot Cafe
+    </title>
+
+    <!-- 키오스크 화면 CSS -->
+    <link rel="stylesheet" href="/css/kiosk.css">
+
+    <!-- Socket.IO 클라이언트 라이브러리 -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+</head>
+
+
+<body>
+
+    <!-- 상단 헤더 -->
+    <header>
+
+        <!-- 카페 이름 -->
+        <h1>
+            ROBOT CAFE
+        </h1>
+
+        <!-- 현재 로봇 상태 표시 -->
+        <div id="robot-state" class="status">
+            ROBOT STANDBY
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <!-- 커피 메뉴 영역 -->
+        <section class="menu">
+
+            <h2>
+                MENU
+            </h2>
+
+
+            <!-- 아메리카노 주문 버튼 -->
+            <!-- 클릭하면 orderCoffee('americano') 실행 -->
+            <button class="menu-item" onclick="orderCoffee('americano')">
+
+                <span>
+                    ☕
+                </span>
+
+                <strong>
+                    Americano
+                </strong>
+
+                <small>
+                    아메리카노
+                </small>
+
+            </button>
+
+
+            <!-- 카페라떼 주문 버튼 -->
+            <!-- 클릭하면 orderCoffee('latte') 실행 -->
+            <button class="menu-item" onclick="orderCoffee('latte')">
+
+                <span>
+                    ☕
+                </span>
+
+                <strong>
+                    Latte
+                </strong>
+
+                <small>
+                    카페라떼
+                </small>
+
+            </button>
+
+
+            <!-- 카푸치노 주문 버튼 -->
+            <!-- 클릭하면 orderCoffee('cappuccino') 실행 -->
+            <button class="menu-item" onclick="orderCoffee('cappuccino')">
+
+                <span>
+                    ☕
+                </span>
+
+                <strong>
+                    Cappuccino
+                </strong>
+
+                <small>
+                    카푸치노
+                </small>
+
+            </button>
+
+        </section>
+
+
+        <!-- 커피 제조 진행 상황 영역 -->
+        <section class="progress">
+
+            <h2>
+                COFFEE PROGRESS
+            </h2>
+
+
+            <!-- 커피 제조 진행률 표시 -->
+            <div class="progress-bar">
+
+                <!-- JavaScript에서 width를 변경하여 진행률 표시 -->
+                <div id="progress-fill"></div>
+
+            </div>
+
+
+            <!-- 진행률 숫자 표시 -->
+            <div id="progress-text">
+                0%
+            </div>
+
+
+            <!-- 현재 제조 단계 표시 -->
+            <div id="process-step">
+                대기 중
+            </div>
+
+
+            <!-- 제조 상태 메시지 표시 -->
+            <div id="process-message">
+            </div>
+
+        </section>
+
+
+        <!-- 주문 정보 영역 -->
+        <section class="order">
+
+            <h2>
+                ORDER
+            </h2>
+
+            <!-- 주문 번호 표시 -->
+            <div id="order-id">
+                -
+            </div>
+
+            <!-- 주문한 커피 이름 표시 -->
+            <div id="order-name">
+                -
+            </div>
+
+        </section>
+
+
+        <!-- 비상 정지 영역 -->
+        <section class="emergency">
+
+            <!-- 클릭하면 emergencyStop() 실행 -->
+            <button onclick="emergencyStop()">
+                EMERGENCY STOP
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <!-- 로봇 상태 관련 JavaScript -->
+    <script src="/js/robot_status.js"></script>
+
+    <!-- 키오스크 주문 관련 JavaScript -->
+    <script src="/js/kiosk.js"></script>
+
+    <!-- 전체 애플리케이션 관련 JavaScript -->
+    <script src="/js/app.js"></script>
+
+</body>
+
+</html>

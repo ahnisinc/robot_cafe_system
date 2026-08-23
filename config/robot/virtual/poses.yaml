@@ -1,0 +1,54 @@
+# Virtual M0609 sample poses.
+# These are NOT real robot teaching values.
+
+poses:
+
+  home:
+    type: joint
+    values:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+
+  cup_pick:
+    type: joint
+    values:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+
+  coffee_machine:
+    type: cartesian
+    values:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+
+  milk_station:
+    type: cartesian
+    values:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+
+  serving:
+    type: cartesian
+    values:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0

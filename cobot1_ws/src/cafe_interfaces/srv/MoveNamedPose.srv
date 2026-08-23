@@ -1,0 +1,6 @@
+string pose_name
+float64 velocity
+float64 acceleration
+---
+bool success
+string message

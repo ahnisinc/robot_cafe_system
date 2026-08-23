@@ -1,0 +1,59 @@
+recipe:
+
+  id: latte
+
+  name: Latte
+
+  steps:
+
+    - name: Cup Pick
+      action: move
+      pose: cup_pick
+
+    - name: Grip Cup
+      action: gripper
+      command: close
+
+    - name: Coffee Machine
+      action: move
+      pose: coffee_machine
+
+    - name: Start Espresso
+      action: io
+      output: coffee_start
+      value: true
+
+    - name: Espresso Wait
+      action: wait
+      seconds: 5
+
+    - name: Stop Espresso
+      action: io
+      output: coffee_start
+      value: false
+
+    - name: Milk Station
+      action: move
+      pose: milk_station
+
+    - name: Milk Process
+      action: io
+      output: milk_start
+      value: true
+
+    - name: Milk Wait
+      action: wait
+      seconds: 5
+
+    - name: Stop Milk
+      action: io
+      output: milk_start
+      value: false
+
+    - name: Serving
+      action: move
+      pose: serving
+
+    - name: Release Cup
+      action: gripper
+      command: open

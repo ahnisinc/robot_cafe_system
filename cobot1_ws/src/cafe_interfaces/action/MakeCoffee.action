@@ -1,0 +1,18 @@
+# Goal
+
+string job_id
+string menu_name
+
+---
+# Result
+
+bool success
+string message
+
+---
+# Feedback
+
+float32 progress
+uint32 current_step
+uint32 total_steps
+string current_step_name

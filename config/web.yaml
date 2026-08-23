@@ -1,0 +1,21 @@
+server:
+
+  host: 0.0.0.0
+  port: 5000
+
+
+rosbridge:
+
+  url: ws://localhost:9090
+
+  coffee_progress_topic:
+    /coffee_process/status
+
+  coffee_progress_type:
+    cafe_interfaces/msg/ProcessStatus
+
+
+database:
+
+  file:
+    database/cafe.db

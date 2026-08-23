@@ -1,0 +1,71 @@
+# ======================================================
+# REAL M0609
+# ======================================================
+#
+# DO NOT USE THESE VALUES FOR ROBOT MOTION.
+#
+# Replace every value after actual Teaching.
+#
+# Required:
+# 1. Teach Home
+# 2. Teach Cup Pick
+# 3. Teach Coffee Machine
+# 4. Teach Milk Station
+# 5. Teach Serving
+# 6. Verify TCP
+# 7. Verify Tool
+# 8. Verify safety
+#
+# ======================================================
+
+poses:
+
+  home:
+    type: joint
+    values:
+      - 0.0
+      - 0.0
+      - 90.0
+      - 0.0
+      - 90.0
+      - 0.0
+
+  cup_pick:
+    type: joint
+    values:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+
+  coffee_machine:
+    type: cartesian
+    values:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+
+  milk_station:
+    type: cartesian
+    values:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+
+  serving:
+    type: cartesian
+    values:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0
+      - 0.0

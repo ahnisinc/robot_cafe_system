@@ -1,0 +1,8 @@
+Flask
+Flask-SocketIO
+#PyQt5
+PyYAML
+requests
+python-socketio
+eventlet
+pytest

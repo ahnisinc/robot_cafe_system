@@ -1,0 +1,5 @@
+Flask>=3.0
+Flask-SocketIO>=5.3
+websocket-client>=1.8
+PyYAML>=6.0
+pytest>=8.0

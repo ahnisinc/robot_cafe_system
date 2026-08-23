@@ -1,0 +1,41 @@
+recipe:
+
+  id: americano
+
+  name: Americano
+
+  steps:
+
+    - name: Cup Pick
+      action: move
+      pose: cup_pick
+
+    - name: Grip Cup
+      action: gripper
+      command: close
+
+    - name: Move Coffee Machine
+      action: move
+      pose: coffee_machine
+
+    - name: Start Coffee
+      action: io
+      output: coffee_start
+      value: true
+
+    - name: Coffee Wait
+      action: wait
+      seconds: 5
+
+    - name: Stop Coffee
+      action: io
+      output: coffee_start
+      value: false
+
+    - name: Serving
+      action: move
+      pose: serving
+
+    - name: Release Cup
+      action: gripper
+      command: open

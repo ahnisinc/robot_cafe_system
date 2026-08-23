@@ -1,0 +1,29 @@
+class RobotController:
+
+    def __init__(
+        self,
+        robot_driver,
+        motion_manager,
+        safety_manager,
+    ):
+        self.robot = robot_driver
+        self.motion = motion_manager
+        self.safety = safety_manager
+
+    def move_to_pose(
+        self,
+        pose_name,
+        velocity=30.0,
+        acceleration=30.0,
+    ):
+        return self.motion.move_to_pose(
+            pose_name,
+            velocity,
+            acceleration,
+        )
+
+    def move_home(self):
+        return self.motion.move_home()
+
+    def stop(self):
+        return self.motion.stop()

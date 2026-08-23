@@ -1,0 +1,16 @@
+# Goal
+
+int8 target
+
+---
+# Result
+
+bool success
+int32 error_code
+string message
+
+---
+# Feedback
+
+float64 progress
+int8 motion_status

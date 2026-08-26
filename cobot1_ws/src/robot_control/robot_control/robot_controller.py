@@ -15,11 +15,13 @@ class RobotController:
         pose_name,
         velocity=30.0,
         acceleration=30.0,
+        motion_type=None,
     ):
         return self.motion.move_to_pose(
             pose_name,
             velocity,
             acceleration,
+            motion_type,
         )
 
     def move_home(self):

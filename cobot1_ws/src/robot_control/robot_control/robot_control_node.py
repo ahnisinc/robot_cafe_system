@@ -1,9 +1,13 @@
+import yaml
+
 import rclpy
 
 from rclpy.node import Node
+from rclpy.executors import MultiThreadedExecutor
 
-from robot_driver.robot_driver import RobotDriver
+from cafe_interfaces.srv import MoveNamedPose, StopProcess
 
+from .driver_client import DriverActionClient
 from .robot_controller import RobotController
 from .motion_manager import MotionManager
 from .safety_manager import SafetyManager
@@ -15,8 +19,24 @@ class RobotControlNode(Node):
 
         super().__init__("robot_control")
 
-        self.driver = RobotDriver(self)
-        self.motion = MotionManager(self.driver, {})
+        self.declare_parameter("poses_file", "")
+
+        poses_file = self.get_parameter("poses_file").get_parameter_value().string_value
+
+        if not poses_file:
+            raise RuntimeError(
+                "'poses_file' 파라미터가 필요합니다. 예: "
+                "ros2 run robot_control robot_control_node "
+                "--ros-args -p poses_file:=/path/to/poses.yaml"
+            )
+
+        with open(poses_file, "r", encoding="utf-8") as file:
+            poses = yaml.safe_load(file)["poses"]
+
+        self.get_logger().info(f"Loaded poses: {poses_file}")
+
+        self.driver = DriverActionClient(self)
+        self.motion = MotionManager(self.driver, poses)
         self.safety = SafetyManager()
 
         self.controller = RobotController(
@@ -25,6 +45,55 @@ class RobotControlNode(Node):
             self.safety,
         )
 
+        self.move_named_pose_srv = self.create_service(
+            MoveNamedPose,
+            "/robot_control/move_named_pose",
+            self.cb_move_named_pose,
+        )
+
+        self.stop_process_srv = self.create_service(
+            StopProcess,
+            "/robot_control/stop_process",
+            self.cb_stop_process,
+        )
+
+        self.get_logger().info("Robot control services ready")
+        self.get_logger().info("  /robot_control/move_named_pose")
+        self.get_logger().info("  /robot_control/stop_process")
+
+    def cb_move_named_pose(self, request, response):
+
+        try:
+            self.controller.move_to_pose(
+                request.pose_name,
+                request.velocity,
+                request.acceleration,
+                request.motion_type or None,
+            )
+
+            response.success = True
+            response.message = f"Moved to {request.pose_name}"
+
+        except Exception as exc:
+            response.success = False
+            response.message = str(exc)
+
+        return response
+
+    def cb_stop_process(self, request, response):
+
+        try:
+            self.controller.stop()
+
+            response.success = True
+            response.message = "Stopped"
+
+        except Exception as exc:
+            response.success = False
+            response.message = str(exc)
+
+        return response
+
 
 def main(args=None):
 
@@ -32,8 +101,10 @@ def main(args=None):
 
     node = RobotControlNode()
 
+    executor = MultiThreadedExecutor()
+
     try:
-        rclpy.spin(node)
+        rclpy.spin(node, executor=executor)
 
     except KeyboardInterrupt:
         pass

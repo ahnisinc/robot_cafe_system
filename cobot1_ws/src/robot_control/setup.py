@@ -21,7 +21,8 @@ setup(
     ],
 
     install_requires=[
-        "setuptools"
+        "setuptools",
+        "PyYAML"
     ],
 
     zip_safe=True,

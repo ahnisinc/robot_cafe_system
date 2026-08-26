@@ -3,52 +3,20 @@
 
 poses:
 
+  poses:
+
   home:
-    type: joint
-    values:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
+    joint: [0.0, 0.0, 90.0, 0.0, 90.0, 0.0]
 
   cup_pick:
-    type: joint
-    values:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
+    joint: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
   coffee_machine:
-    type: cartesian
-    values:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
+    joint: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    cartesian: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
   milk_station:
-    type: cartesian
-    values:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
+    cartesian: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
   serving:
-    type: cartesian
-    values:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
-      - 0.0
+    cartesian: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]

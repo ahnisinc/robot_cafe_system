@@ -14,6 +14,7 @@ class MotionManager:
         pose_name,
         velocity=30.0,
         acceleration=30.0,
+        motion_type=None,
     ):
 
         if pose_name not in self.poses:
@@ -21,11 +22,34 @@ class MotionManager:
 
         pose = self.poses[pose_name]
 
-        pose_type = pose["type"]
+        available_types = [key for key in ("joint", "cartesian") if key in pose]
 
-        values = pose["values"]
+        if not available_types:
+            raise ValueError(f"Pose '{pose_name}' has no joint/cartesian values")
 
-        if pose_type == "joint":
+        if motion_type:
+
+            if motion_type not in pose:
+                raise ValueError(
+                    f"Pose '{pose_name}' has no '{motion_type}' values "
+                    f"(available: {available_types})"
+                )
+
+            selected_type = motion_type
+
+        elif len(available_types) == 1:
+
+            selected_type = available_types[0]
+
+        else:
+            raise ValueError(
+                f"Pose '{pose_name}' has multiple motion types "
+                f"{available_types}; specify motion_type explicitly"
+            )
+
+        values = pose[selected_type]
+
+        if selected_type == "joint":
 
             return self.robot.move_joint(
                 values,
@@ -33,7 +57,7 @@ class MotionManager:
                 acceleration,
             )
 
-        if pose_type == "cartesian":
+        if selected_type == "cartesian":
 
             return self.robot.move_line(
                 values,
@@ -41,7 +65,7 @@ class MotionManager:
                 acceleration,
             )
 
-        raise ValueError(f"Unknown pose type: {pose_type}")
+        raise ValueError(f"Unknown pose type: {selected_type}")
 
     def move_home(self):
 

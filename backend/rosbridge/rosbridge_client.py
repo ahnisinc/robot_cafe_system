@@ -5,7 +5,7 @@ import uuid
 
 import websocket
 
-from backend.database.db import save_process_status
+from backend.database.db import save_process_status, update_order_progress
 
 
 class ROSBridgeClient:
@@ -94,6 +94,16 @@ class ROSBridgeClient:
         self.socketio.emit("coffee_progress", data)
 
         save_process_status(data)
+
+        order_id = data.get("order_id")
+
+        if order_id:
+            update_order_progress(
+                order_id,
+                data.get("state", ""),
+                data.get("progress", 0.0),
+                data.get("current_step", ""),
+            )
 
     def call_service(self, service, args=None, service_type=None, timeout=5):
 

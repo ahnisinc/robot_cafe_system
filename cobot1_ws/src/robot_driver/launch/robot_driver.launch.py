@@ -14,7 +14,8 @@ def generate_launch_description():
             output="screen",
             parameters=[
                 {
-                    "robot_name": "dsr01"
+                    "robot_name": "dsr01",
+                    "robot_model": "m0609",
                 }
             ],
         ),

@@ -5,6 +5,7 @@ from backend.config import FRONTEND_DIR, FLASK_HOST, FLASK_PORT
 from backend.database.db import init_database
 from backend.routes.api import api
 from backend.routes.websocket import register_socket_events
+from backend.rosbridge.connection import init_rosbridge_client
 from backend.rosbridge.coffee_progress_bridge import CoffeeProgressBridge
 
 
@@ -35,8 +36,11 @@ def create_app():
     # WebSocket 이벤트 등록
     register_socket_events(socketio)
 
+    # ROSBridge 공유 연결 생성
+    rosbridge_client = init_rosbridge_client(socketio)
+
     # ROS2 ↔ Web 서버 브리지 생성 및 시작
-    bridge = CoffeeProgressBridge(socketio)
+    bridge = CoffeeProgressBridge(rosbridge_client)
     bridge.start()
 
     # Flask와 Socket.IO 객체 반환

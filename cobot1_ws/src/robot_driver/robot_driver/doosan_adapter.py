@@ -12,8 +12,8 @@ class DoosanAdapter:
     def __init__(
         self,
         node,
-        robot_name="dsr01",
-        robot_model="m0609",
+        robot_name,
+        robot_model,
     ):
         self.node = node
         self.robot_name = robot_name
@@ -187,10 +187,10 @@ class DoosanAdapter:
     ):
 
         self._require_api()
-
+        
         return self.dsr.set_digital_output(
             channel,
-            value,
+            self.dsr.ON if value else self.dsr.OFF,
         )
 
     def get_input(

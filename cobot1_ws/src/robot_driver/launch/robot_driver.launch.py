@@ -12,12 +12,6 @@ def generate_launch_description():
             executable="driver_node",
             name="robot_driver",
             output="screen",
-            parameters=[
-                {
-                    "robot_name": "dsr01",
-                    "robot_model": "m0609",
-                }
-            ],
         ),
 
     ])

@@ -12,24 +12,41 @@ class DoosanAdapter:
     def __init__(
         self,
         node,
-        robot_name="dsr01",
+        robot_name,
+        robot_model,
     ):
         self.node = node
         self.robot_name = robot_name
+        self.robot_model = robot_model
 
         try:
+            # DSR_ROBOT2 reads these at import time to create
+            # its ROS2 clients/publishers, so they must be set
+            # on DR_init before the import happens.
+            import DR_init
+
+            # NOTE: these are set via setattr(), not dotted
+            # assignment. Inside a class body, an attribute name
+            # starting with "__" (like __dsr__id) is name-mangled
+            # by Python even when the target is an external module,
+            # which would silently set the wrong attribute on
+            # DR_init and leave __dsr__node as None for DSR_ROBOT2.
+            setattr(DR_init, "__dsr__id", robot_name)
+            setattr(DR_init, "__dsr__model", robot_model)
+            setattr(DR_init, "__dsr__node", node)
+
             import DSR_ROBOT2 as dsr
 
             self.dsr = dsr
             self.available = True
 
-        except ImportError:
+        except Exception as exc:
 
             self.dsr = None
             self.available = False
 
             self.node.get_logger().warning(
-                "DSR_ROBOT2 is not available. "
+                f"DSR_ROBOT2 is not available ({exc}). "
                 "Driver is in interface-only mode."
             )
 
@@ -170,10 +187,10 @@ class DoosanAdapter:
     ):
 
         self._require_api()
-
+        
         return self.dsr.set_digital_output(
             channel,
-            value,
+            self.dsr.ON if value else self.dsr.OFF,
         )
 
     def get_input(

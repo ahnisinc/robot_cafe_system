@@ -21,6 +21,8 @@ set(srv_files
   "srv/ExecuteRecipe.srv"
   "srv/MoveNamedPose.srv"
   "srv/StopProcess.srv"
+  "srv/SetDigitalOutput.srv"
+  "srv/GetDigitalInput.srv"
 )
 
 set(action_files

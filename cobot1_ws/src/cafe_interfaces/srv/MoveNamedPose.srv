@@ -1,4 +1,5 @@
 string pose_name
+string motion_type
 float64 velocity
 float64 acceleration
 ---

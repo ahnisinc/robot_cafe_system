@@ -1,8 +1,11 @@
 import json
 import threading
 import time
+import uuid
 
 import websocket
+
+from backend.database.db import save_process_status, update_order_progress
 
 
 class ROSBridgeClient:
@@ -89,3 +92,58 @@ class ROSBridgeClient:
         data = message.get("msg", {})
 
         self.socketio.emit("coffee_progress", data)
+
+        save_process_status(data)
+
+        order_id = data.get("order_id")
+
+        if order_id:
+            update_order_progress(
+                order_id,
+                data.get("state", ""),
+                data.get("progress", 0.0),
+                data.get("current_step", ""),
+            )
+
+    def call_service(self, service, args=None, service_type=None, timeout=5):
+
+        ws = websocket.create_connection(self.url, timeout=timeout)
+
+        try:
+            request_id = uuid.uuid4().hex
+
+            request = {
+                "op": "call_service",
+                "id": request_id,
+                "service": service,
+                "args": args or {},
+            }
+
+            if service_type:
+                request["type"] = service_type
+
+            ws.send(json.dumps(request))
+
+            while True:
+                raw = ws.recv()
+
+                if not raw:
+                    raise ConnectionError(
+                        "ROSBridge connection closed before service response"
+                    )
+
+                message = json.loads(raw)
+
+                if message.get("op") != "service_response":
+                    continue
+
+                if message.get("id") != request_id:
+                    continue
+
+                if message.get("result") is False:
+                    raise RuntimeError(f"ROSBridge service call failed: {service}")
+
+                return message.get("values", {})
+
+        finally:
+            ws.close()

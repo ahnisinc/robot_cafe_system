@@ -13,11 +13,13 @@ class RobotDriver:
         self,
         node,
         robot_name="dsr01",
+        robot_model="m0609",
     ):
 
         self.adapter = DoosanAdapter(
             node,
             robot_name,
+            robot_model,
         )
 
     def get_state(self):

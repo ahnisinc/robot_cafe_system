@@ -5,14 +5,15 @@ import uuid
 
 import websocket
 
-from backend.database.db import save_process_status, update_order_progress
+from backend.database.db import save_process_status
 
 
 class ROSBridgeClient:
 
-    def __init__(self, url, socketio, topic, message_type):
+    def __init__(self, url, socketio, topic, message_type, on_status=None):
 
         self.url = url
+        self.on_status = on_status
 
         self.socketio     = socketio
         self.topic        = topic
@@ -95,15 +96,11 @@ class ROSBridgeClient:
 
         save_process_status(data)
 
-        order_id = data.get("order_id")
-
-        if order_id:
-            update_order_progress(
-                order_id,
-                data.get("state", ""),
-                data.get("progress", 0.0),
-                data.get("current_step", ""),
-            )
+        if self.on_status:
+            try:
+                self.on_status(data)
+            except Exception as exc:
+                print("Status handler error:", exc)
 
     def call_service(self, service, args=None, service_type=None, timeout=5):
 

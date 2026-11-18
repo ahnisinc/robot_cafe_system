@@ -3,7 +3,7 @@ import threading
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.node import Node
 from std_srvs.srv import Trigger
-from dsr_msgs2.srv import MovePause, MoveResume, MoveStop
+from dsr_msgs2.srv import CheckMotion, MovePause, MoveResume, MoveStop
 
 DR_QSTOP = 1
 
@@ -28,10 +28,12 @@ class DriverControlNode(Node):
         self._pause = self.create_client(MovePause, prefix + "move_pause", callback_group=group)
         self._resume = self.create_client(MoveResume, prefix + "move_resume", callback_group=group)
         self._stop = self.create_client(MoveStop, prefix + "move_stop", callback_group=group)
+        self._check = self.create_client(CheckMotion, prefix + "check_motion", callback_group=group)
 
         self.create_service(Trigger, "/robot_driver/pause", self.cb_pause, callback_group=group)
         self.create_service(Trigger, "/robot_driver/resume", self.cb_resume, callback_group=group)
         self.create_service(Trigger, "/robot_driver/stop", self.cb_stop, callback_group=group)
+        self.create_service(Trigger, "/robot_driver/clear_stop", self.cb_clear_stop, callback_group=group)
 
         self.get_logger().info("Robot driver control ready: /robot_driver/pause, resume, stop")
 
@@ -39,7 +41,31 @@ class DriverControlNode(Node):
         return self._forward(self._pause, MovePause.Request(), response)
 
     def cb_resume(self, request, response):
-        return self._forward(self._resume, MoveResume.Request(), response)
+
+        self._forward(self._resume, MoveResume.Request(), response)
+
+        if not response.success and self._is_idle():
+            response.success = True
+            response.message = "no motion to resume"
+
+        return response
+
+    def cb_clear_stop(self, request, response):
+        self.stop_event.clear()
+        response.success = True
+        response.message = "OK"
+        return response
+
+    def _is_idle(self):
+
+        if not self._check.wait_for_service(timeout_sec=1.0):
+            return False
+
+        done = threading.Event()
+        future = self._check.call_async(CheckMotion.Request())
+        future.add_done_callback(lambda _: done.set())
+
+        return done.wait(3.0) and future.result().status == 0
 
     def cb_stop(self, request, response):
         self.stop_event.set()

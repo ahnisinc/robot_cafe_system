@@ -24,7 +24,8 @@ class Dispatcher:
         state = data.get("state", "")
 
         with self._lock:
-            if order_id and db.get_order(order_id):
+            order = db.get_order(order_id) if order_id else None
+            if order and order["status"] not in ("DONE", "FAILED"):
                 if order_state in ("DONE", "FAILED"):
                     db.set_order_status(order_id, order_state)
                 elif order_state == "RUNNING":

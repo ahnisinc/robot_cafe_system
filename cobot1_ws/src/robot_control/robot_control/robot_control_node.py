@@ -67,6 +67,10 @@ class RobotControlNode(Node):
             Trigger, "/robot_control/pause", self.cb_pause, callback_group=self.service_group
         )
 
+        self.clear_stop_srv = self.create_service(
+            Trigger, "/robot_control/clear_stop", self.cb_clear_stop, callback_group=self.service_group
+        )
+
         self.resume_srv = self.create_service(
             Trigger, "/robot_control/resume", self.cb_resume, callback_group=self.service_group
         )
@@ -112,6 +116,9 @@ class RobotControlNode(Node):
 
     def cb_pause(self, request, response):
         return self._trigger(self.controller.pause, "Paused", response)
+
+    def cb_clear_stop(self, request, response):
+        return self._trigger(self.controller.clear_stop, "Stop cleared", response)
 
     def cb_resume(self, request, response):
         return self._trigger(self.controller.resume, "Resumed", response)

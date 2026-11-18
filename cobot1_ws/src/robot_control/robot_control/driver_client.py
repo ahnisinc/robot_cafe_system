@@ -31,6 +31,7 @@ class DriverActionClient:
         self._pause_client = node.create_client(Trigger, "/robot_driver/pause", callback_group=group)
         self._resume_client = node.create_client(Trigger, "/robot_driver/resume", callback_group=group)
         self._stop_client = node.create_client(Trigger, "/robot_driver/stop", callback_group=group)
+        self._clear_stop_client = node.create_client(Trigger, "/robot_driver/clear_stop", callback_group=group)
 
         self.paused = False
 
@@ -114,6 +115,10 @@ class DriverActionClient:
 
         self.paused = False
         self._trigger(self._stop_client)
+
+    def clear_stop(self):
+
+        self._trigger(self._clear_stop_client)
 
     def _trigger(self, client, timeout=5.0):
 

@@ -23,12 +23,14 @@ class FakeRobot:
         self.calls = []
         self.block = None
         self.fail = None
+        self.pause_error = None
+        self.pause_gate = None
+        self.stop_error = None
         self.moving = threading.Event()
         self._stopped = threading.Event()
 
     def move_to_pose(self, name, velocity, acceleration):
         self.calls.append(("move", name))
-        self._stopped.clear()
         self.moving.set()
         if self.fail:
             raise self.fail
@@ -38,13 +40,23 @@ class FakeRobot:
 
     def pause(self):
         self.calls.append(("pause",))
+        if self.pause_gate is not None:
+            self.pause_gate.wait(2)
+        if self.pause_error:
+            raise self.pause_error
 
     def resume(self):
         self.calls.append(("resume",))
 
     def stop(self):
         self.calls.append(("stop",))
+        if self.stop_error:
+            raise self.stop_error
         self._stopped.set()
+
+    def clear_stop(self):
+        self.calls.append(("clear_stop",))
+        self._stopped.clear()
 
 
 class FakeIO:
@@ -108,7 +120,7 @@ def test_first_reset_goes_home_only(env):
     runner, robot, *_ = env
     assert runner.resume()[0] is True
     runner.join(2)
-    assert robot.calls == [("move", "home")]
+    assert robot.calls == [("clear_stop",), ("move", "home")]
     assert runner.state == "HOMED"
 
 
@@ -310,3 +322,64 @@ def test_status_callback_on_every_transition(env):
     assert set(statuses[-1]) == {
         "order_id", "recipe_id", "state", "order_state", "current_step",
         "current_step_index", "total_steps", "progress", "message"}
+
+
+def test_stop_latch_cleared_once_per_process(env):
+    runner, robot, io, recipes, _ = env
+    recipes.steps = [MOVE, TO_MACHINE]
+    ready(runner)
+    runner.execute("ORD-1", "latte")
+    runner.join(2)
+    calls = [c for c in robot.calls if c[0] in ("clear_stop", "move")]
+    assert calls == [("clear_stop",), ("move", "home"),
+                     ("clear_stop",), ("move", "cup_pick"), ("move", "coffee_machine")]
+
+
+def test_force_stop_reports_failure_when_robot_stop_fails(env):
+    runner, robot, io, recipes, _ = env
+    recipes.steps = [{"name": "Espresso Wait", "action": "wait", "seconds": 5}]
+    ready(runner)
+    robot.stop_error = RuntimeError("driver down")
+    runner.execute("ORD-1", "latte")
+    ok, message = runner.force_stop()
+    assert ok is False
+    assert "driver down" in message
+    runner.join(2)
+    assert runner.state == "STOPPED"
+
+
+def test_pause_failure_does_not_override_force_stop(env):
+    runner, robot, io, recipes, _ = env
+    recipes.steps = [MOVE]
+    ready(runner)
+    robot.block = threading.Event()
+    robot.moving.clear()
+    robot.pause_gate = threading.Event()
+    robot.pause_error = RuntimeError("timeout")
+    runner.execute("ORD-1", "latte")
+    wait_until(robot.moving.is_set)
+    result = {}
+    t = threading.Thread(target=lambda: result.update(r=runner.pause()))
+    t.start()
+    wait_until(lambda: ("pause",) in robot.calls)
+    runner.force_stop()
+    runner.join(2)
+    robot.pause_gate.set()
+    t.join(2)
+    assert result["r"][0] is False
+    assert runner.state == "STOPPED"
+
+
+def test_double_resume_from_stopped_starts_one_reset(env):
+    runner, robot, *_ = env
+    robot.block = threading.Event()
+    results = []
+    threads = [threading.Thread(target=lambda: results.append(runner.resume())) for _ in range(2)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(2)
+    robot.block.set()
+    runner.join(2)
+    assert sorted(ok for ok, _ in results) == [False, True]
+    assert robot.calls.count(("move", "home")) == 1

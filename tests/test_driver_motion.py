@@ -89,3 +89,13 @@ def test_stop_waits_for_controller_idle():
     with pytest.raises(RuntimeError, match="stopped"):
         a._wait_motion(tick=0.001)
     assert a.dsr.check_count == 4
+
+
+def test_latched_stop_prevents_new_motion():
+    a = make_adapter([0])
+    a.stop_event.set()
+    with pytest.raises(RuntimeError, match="stopped"):
+        a.move_joint([0] * 6, 30.0, 30.0)
+    with pytest.raises(RuntimeError, match="stopped"):
+        a.move_line([0] * 6, 30.0, 30.0)
+    assert a.dsr.calls == []

@@ -102,7 +102,6 @@ class DriverNode(Node):
         result = MoveJoint.Result()
 
         try:
-            self.driver.clear_stop()
             self.driver.move_joint(
                 list(goal.position),
                 goal.velocity,
@@ -129,7 +128,6 @@ class DriverNode(Node):
         result = MoveHome.Result()
 
         try:
-            self.driver.clear_stop()
             self.driver.move_home()
 
             goal_handle.succeed()
@@ -153,7 +151,6 @@ class DriverNode(Node):
         result = MoveLine.Result()
 
         try:
-            self.driver.clear_stop()
             self.driver.move_line(
                 list(goal.position),
                 goal.linear_velocity,
@@ -189,7 +186,7 @@ def main(args=None):
         node.get_parameter("robot_name").get_parameter_value().string_value,
         node.driver.stop_event,
     )
-    control_executor = MultiThreadedExecutor(num_threads=2)
+    control_executor = MultiThreadedExecutor(num_threads=4)
     control_executor.add_node(control_node)
     threading.Thread(target=control_executor.spin, daemon=True).start()
 

@@ -87,12 +87,16 @@ class ProcessRunner:
         if pause_robot:
             try:
                 self.robot.pause()
-                self._robot_paused = True
             except Exception as exc:
                 with self._cond:
-                    self.state = "RUNNING"
-                    self._cond.notify_all()
+                    if self.state == "PAUSED" and not self._abort:
+                        self.state = "RUNNING"
+                        self._cond.notify_all()
                 return False, f"robot pause failed: {exc}"
+
+            with self._cond:
+                if self.state == "PAUSED" and not self._abort:
+                    self._robot_paused = True
 
         self._emit()
         return True, "paused"
@@ -100,35 +104,37 @@ class ProcessRunner:
     def resume(self):
 
         with self._cond:
-            state = self.state
-
-        if state == "PAUSED":
-            if self._robot_paused:
-                try:
-                    self.robot.resume()
-                except Exception as exc:
-                    return False, f"robot resume failed: {exc}"
-                self._robot_paused = False
-
-            with self._cond:
-                self.state = "RUNNING"
-                self._cond.notify_all()
-
-            self._emit()
-            return True, "resumed"
-
-        if state == "STOPPED":
-            with self._cond:
+            if self.state == "STOPPED":
                 self._abort = False
                 self.state = "RESETTING"
                 self._status.update(message="초기화 중")
                 self._start_thread(self._run_reset)
+                reset = True
+            elif self.state == "PAUSED":
+                reset = False
+                resume_robot = self._robot_paused
+            else:
+                return self._reject("resume")
 
+        if reset:
             self._emit()
             return True, "resetting"
 
+        if resume_robot:
+            try:
+                self.robot.resume()
+            except Exception as exc:
+                return False, f"robot resume failed: {exc}"
+
         with self._cond:
-            return self._reject("resume")
+            if self.state != "PAUSED" or self._abort:
+                return self._reject("resume")
+            self._robot_paused = False
+            self.state = "RUNNING"
+            self._cond.notify_all()
+
+        self._emit()
+        return True, "resumed"
 
     def force_stop(self):
 
@@ -142,7 +148,7 @@ class ProcessRunner:
         try:
             self.robot.stop()
         except Exception as exc:
-            return True, f"stopping (robot stop failed: {exc})"
+            return False, f"로봇 정지 실패: {exc} — 하드웨어 비상정지를 사용하세요"
 
         return True, "stopping"
 
@@ -186,6 +192,8 @@ class ProcessRunner:
         total = len(steps)
 
         try:
+            self.robot.clear_stop()
+
             for index, step in enumerate(steps):
                 self._checkpoint()
 
@@ -226,6 +234,9 @@ class ProcessRunner:
     def _run_reset(self):
 
         try:
+            self.robot.clear_stop()
+            self._checkpoint()
+
             if self._holding_cup:
                 self._step(lambda: self.robot.move_to_pose("trash", 30.0, 30.0))
                 self._step(lambda: self.io.set_gripper("open"))

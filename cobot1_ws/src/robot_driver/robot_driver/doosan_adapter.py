@@ -121,6 +121,7 @@ class DoosanAdapter:
 
         self._require_api()
 
+        self._raise_if_stopped()
         self.dsr.amovej(
             joints,
             vel=velocity,
@@ -137,12 +138,18 @@ class DoosanAdapter:
 
         self._require_api()
 
+        self._raise_if_stopped()
         self.dsr.amovel(
             pose,
             vel=[velocity, velocity],
             acc=[acceleration, acceleration],
         )
         self._wait_motion()
+
+    def _raise_if_stopped(self):
+
+        if self.stop_event.is_set():
+            raise RuntimeError("stopped")
 
     def clear_stop(self):
 

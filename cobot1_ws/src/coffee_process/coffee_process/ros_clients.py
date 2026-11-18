@@ -34,6 +34,8 @@ class RobotClient:
             Trigger, "/robot_control/resume", callback_group=cb_group)
         self._stop = node.create_client(
             StopProcess, "/robot_control/stop_process", callback_group=cb_group)
+        self._clear_stop = node.create_client(
+            Trigger, "/robot_control/clear_stop", callback_group=cb_group)
 
     def move_to_pose(self, name, velocity, acceleration):
 
@@ -57,6 +59,9 @@ class RobotClient:
 
     def stop(self):
         self._check(call_service(self._stop, StopProcess.Request(emergency=True), 5.0))
+
+    def clear_stop(self):
+        self._check(call_service(self._clear_stop, Trigger.Request(), 5.0))
 
     @staticmethod
     def _check(result):

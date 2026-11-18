@@ -147,3 +147,15 @@ def test_queue_position(env):
     assert db.get_queue_position("B") == 1
     assert db.get_queue_position("C") == 2
     assert db.get_queue_position("A") == 0
+
+
+def test_late_running_message_does_not_revive_finished_order(env):
+    d, calls, _ = env
+    db.save_order("A", "latte", "Latte")
+    db.save_order("B", "latte", "Latte")
+    d.on_status(status("IDLE"))
+    d.on_status(status("IDLE", "A", "DONE", 100.0))
+    d.on_status(status("RUNNING", "A", "RUNNING", 90.0))
+    assert db.get_order("A")["status"] == "DONE"
+    d.on_status(status("IDLE", "B", "DONE", 100.0))
+    assert db.get_order("B")["status"] == "DONE"

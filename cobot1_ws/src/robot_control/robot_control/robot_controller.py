@@ -37,3 +37,7 @@ class RobotController:
     def resume(self):
 
         return self.motion.resume()
+
+    def clear_stop(self):
+
+        return self.motion.clear_stop()

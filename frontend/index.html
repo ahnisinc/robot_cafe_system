@@ -165,15 +165,25 @@
                 -
             </div>
 
+            <div id="order-status">
+                -
+            </div>
+
         </section>
 
 
-        <!-- 비상 정지 영역 -->
-        <section class="emergency">
+        <section class="controls">
 
-            <!-- 클릭하면 emergencyStop() 실행 -->
-            <button onclick="emergencyStop()">
-                EMERGENCY STOP
+            <button id="btn-pause" disabled>
+                정지
+            </button>
+
+            <button id="btn-force" disabled>
+                강제 정지
+            </button>
+
+            <button id="btn-start" disabled>
+                시작
             </button>
 
         </section>

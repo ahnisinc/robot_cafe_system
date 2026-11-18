@@ -15,7 +15,9 @@ def create_app():
     app.config["SECRET_KEY"] = "robot-cafe-secret"
 
     # Socket.IO 설정
-    socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+    socketio = SocketIO(
+        app, cors_allowed_origins="*", async_mode="threading", manage_session=False
+    )
 
     # 데이터베이스 초기화
     init_database()

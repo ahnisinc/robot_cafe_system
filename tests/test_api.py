@@ -89,3 +89,11 @@ def test_order_returns_queue_position_and_kicks(client, monkeypatch):
     assert response.status_code == 201
     assert response.json["queue_position"] == 1
     assert dispatcher.kicks == 1
+
+
+def test_socketio_client_connects_and_gets_server_status(tmp_path, monkeypatch):
+    monkeypatch.setattr(db, "DATABASE_PATH", tmp_path / "t.db")
+    app, socketio = create_app()
+    client = socketio.test_client(app)
+    assert client.is_connected()
+    assert any(event["name"] == "server_status" for event in client.get_received())

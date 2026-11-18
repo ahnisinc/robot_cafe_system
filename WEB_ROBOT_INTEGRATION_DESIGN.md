@@ -190,7 +190,8 @@
 | `/robot_control/move_named_pose` | `MoveNamedPose` (기존) | robot_control | 일시정지 동안에는 타임아웃 시계를 멈춘다. |
 | `/robot_control/pause`, `/robot_control/resume` | `std_srvs/srv/Trigger` | robot_control | 드라이버 제어 통로로 전달 |
 | `/robot_control/stop_process` | `StopProcess` (기존) | robot_control | 드라이버 `stop`으로 전달 (기존의 액션 취소 방식 대체) |
-| `/robot_driver/pause`, `/resume`, `/stop` | `std_srvs/srv/Trigger` | robot_driver 제어 노드 | 두산 `move_pause` / `move_resume` / `move_stop(stop_mode=1, DR_QSTOP)` |
+| `/robot_driver/pause`, `/resume`, `/stop`, `/clear_stop` | `std_srvs/srv/Trigger` | robot_driver 제어 노드 | 두산 `move_pause` / `move_resume` / `move_stop(stop_mode=1, DR_QSTOP)` / 정지 래치 해제 |
+| `/robot_control/clear_stop` | `std_srvs/srv/Trigger` | robot_control | 드라이버 정지 래치 해제 (공정 시작 시) |
 | `/robot_driver/set_digital_output` | `cafe_interfaces/srv/SetDigitalOutput` (기존) | robot_driver 메인 노드 | DSR `set_digital_output` |
 | `/onrobot/sendCommand` | `onrobot_rg_msgs/srv/SetCommand` | OnRobot 드라이버 / `gripper_virtual_node` | 외부 패키지 (기존) |
 
@@ -224,7 +225,8 @@
   - 이 노드가 `/robot_driver/pause|resume|stop` 서비스를 제공한다.
   - 일반 rclpy 클라이언트로 `/<robot_name>/dsr_controller2/motion/move_pause|move_resume|move_stop`을 호출한다. DSR_ROBOT2는 거치지 않는다(전역 executor 충돌).
   - 응답 대기는 `call_async` + 이벤트로 하며 타임아웃은 3초.
-  - `stop`이 호출되면 "정지됨" 플래그를 세운다. 플래그는 다음 이동 시작 시 초기화한다.
+  - `stop`이 호출되면 "정지됨" 래치를 세운다. 래치가 서 있으면 새 이동을 시작하지 않는다. 래치는 coffee_process가 공정(주문 실행·초기화)을 시작할 때 `/robot_control/clear_stop` → `/robot_driver/clear_stop`으로만 해제한다. (최종 리뷰 C1: 이동마다 지우면 단계 경계에 들어온 강제 정지가 무시됨)
+  - `resume` 요청 시 일시정지된 모션이 없으면(`check_motion=0`) 성공으로 응답한다.
 - `/robot_driver/set_digital_output` 서비스 추가 (메인 노드).
 - 의존성 추가: `dsr_msgs2`, `std_srvs`.
 

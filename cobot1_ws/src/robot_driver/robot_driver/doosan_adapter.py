@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import threading
+import time
+
 
 class DoosanAdapter:
     '''
@@ -18,6 +21,8 @@ class DoosanAdapter:
         self.node = node
         self.robot_name = robot_name
         self.robot_model = robot_model
+
+        self.stop_event = threading.Event()
 
         try:
             # DSR_ROBOT2 reads these at import time to create
@@ -116,11 +121,12 @@ class DoosanAdapter:
 
         self._require_api()
 
-        return self.dsr.movej(
+        self.dsr.amovej(
             joints,
             vel=velocity,
             acc=acceleration,
         )
+        self._wait_motion()
 
     def move_line(
         self,
@@ -131,11 +137,40 @@ class DoosanAdapter:
 
         self._require_api()
 
-        return self.dsr.movel(
+        self.dsr.amovel(
             pose,
             vel=[velocity, velocity],
             acc=[acceleration, acceleration],
         )
+        self._wait_motion()
+
+    def clear_stop(self):
+
+        self.stop_event.clear()
+
+    def _wait_motion(self, tick=0.1):
+
+        stop_deadline = None
+
+        while True:
+            status = self.dsr.check_motion()
+
+            if status == -1:
+                raise RuntimeError("check_motion failed")
+
+            if status == 0:
+                break
+
+            if self.stop_event.is_set():
+                if stop_deadline is None:
+                    stop_deadline = time.monotonic() + 3.0
+                elif time.monotonic() > stop_deadline:
+                    break
+
+            time.sleep(tick)
+
+        if self.stop_event.is_set():
+            raise RuntimeError("stopped")
 
     def move_home(self):
 

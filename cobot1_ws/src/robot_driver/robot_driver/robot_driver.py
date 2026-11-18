@@ -70,6 +70,15 @@ class RobotDriver:
 
         return self.adapter.move_home()
 
+    def clear_stop(self):
+
+        return self.adapter.clear_stop()
+
+    @property
+    def stop_event(self):
+
+        return self.adapter.stop_event
+
     def stop(
         self,
         stop_mode=1,

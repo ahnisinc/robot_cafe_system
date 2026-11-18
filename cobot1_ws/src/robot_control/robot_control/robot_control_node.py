@@ -3,7 +3,9 @@ import yaml
 import rclpy
 
 from rclpy.node import Node
+from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
+from std_srvs.srv import Trigger
 
 from cafe_interfaces.srv import MoveNamedPose, StopProcess
 
@@ -45,21 +47,34 @@ class RobotControlNode(Node):
             self.safety,
         )
 
+        self.service_group = ReentrantCallbackGroup()
+
         self.move_named_pose_srv = self.create_service(
             MoveNamedPose,
             "/robot_control/move_named_pose",
             self.cb_move_named_pose,
+            callback_group=self.service_group,
         )
 
         self.stop_process_srv = self.create_service(
             StopProcess,
             "/robot_control/stop_process",
             self.cb_stop_process,
+            callback_group=self.service_group,
+        )
+
+        self.pause_srv = self.create_service(
+            Trigger, "/robot_control/pause", self.cb_pause, callback_group=self.service_group
+        )
+
+        self.resume_srv = self.create_service(
+            Trigger, "/robot_control/resume", self.cb_resume, callback_group=self.service_group
         )
 
         self.get_logger().info("Robot control services ready")
         self.get_logger().info("  /robot_control/move_named_pose")
         self.get_logger().info("  /robot_control/stop_process")
+        self.get_logger().info("  /robot_control/pause, /robot_control/resume")
 
     def cb_move_named_pose(self, request, response):
 
@@ -87,6 +102,26 @@ class RobotControlNode(Node):
 
             response.success = True
             response.message = "Stopped"
+
+        except Exception as exc:
+            response.success = False
+            response.message = str(exc)
+
+        return response
+
+
+    def cb_pause(self, request, response):
+        return self._trigger(self.controller.pause, "Paused", response)
+
+    def cb_resume(self, request, response):
+        return self._trigger(self.controller.resume, "Resumed", response)
+
+    def _trigger(self, action, message, response):
+
+        try:
+            action()
+            response.success = True
+            response.message = message
 
         except Exception as exc:
             response.success = False

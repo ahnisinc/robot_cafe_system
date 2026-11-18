@@ -29,3 +29,11 @@ class RobotController:
 
     def stop(self):
         return self.motion.stop()
+
+    def pause(self):
+
+        return self.motion.pause()
+
+    def resume(self):
+
+        return self.motion.resume()

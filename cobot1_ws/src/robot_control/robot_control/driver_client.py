@@ -1,6 +1,7 @@
 import threading
 
 from rclpy.action import ActionClient
+from rclpy.callback_groups import ReentrantCallbackGroup
 
 from cafe_interfaces.action import MoveJoint, MoveHome, MoveLine
 
@@ -18,9 +19,11 @@ class DriverActionClient:
 
         self.node = node
 
-        self._move_joint_client = ActionClient(node, MoveJoint, "/robot_driver/move_joint")
-        self._move_home_client = ActionClient(node, MoveHome, "/robot_driver/move_home")
-        self._move_line_client = ActionClient(node, MoveLine, "/robot_driver/move_line")
+        group = ReentrantCallbackGroup()
+
+        self._move_joint_client = ActionClient(node, MoveJoint, "/robot_driver/move_joint", callback_group=group)
+        self._move_home_client = ActionClient(node, MoveHome, "/robot_driver/move_home", callback_group=group)
+        self._move_line_client = ActionClient(node, MoveLine, "/robot_driver/move_line", callback_group=group)
 
         self._active_goal_handle = None
 

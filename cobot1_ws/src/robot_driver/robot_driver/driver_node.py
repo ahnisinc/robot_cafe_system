@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
+from rclpy.executors import SingleThreadedExecutor
 
 from cafe_interfaces.action import MoveJoint, MoveHome, MoveLine
 
@@ -155,8 +156,11 @@ def main(args=None):
 
     node = DriverNode()
 
+    executor = SingleThreadedExecutor()
+    executor.add_node(node)
+
     try:
-        rclpy.spin(node)
+        executor.spin()
 
     except KeyboardInterrupt:
         pass

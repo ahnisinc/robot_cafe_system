@@ -66,7 +66,7 @@ class CoffeeProcessNode(Node):
             f"Coffee process: " f"{state} / " f"{current_step} / " f"{progress:.1f}%"
         )
 
-        self.publish_status()
+        self.cb_publish_status()
 
     def set_order(self, order_id, recipe_id):
 

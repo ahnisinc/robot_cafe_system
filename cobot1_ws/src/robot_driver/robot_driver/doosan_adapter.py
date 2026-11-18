@@ -33,7 +33,13 @@ class DoosanAdapter:
             # DR_init and leave __dsr__node as None for DSR_ROBOT2.
             setattr(DR_init, "__dsr__id", robot_name)
             setattr(DR_init, "__dsr__model", robot_model)
-            setattr(DR_init, "__dsr__node", node)
+            import rclpy
+
+            self.dsr_node = rclpy.create_node(
+                "robot_driver_dsr",
+                namespace=robot_name,
+            )
+            setattr(DR_init, "__dsr__node", self.dsr_node)
 
             import DSR_ROBOT2 as dsr
 
@@ -114,7 +120,6 @@ class DoosanAdapter:
             joints,
             vel=velocity,
             acc=acceleration,
-            sync_type=0,
         )
 
     def move_line(
@@ -130,7 +135,6 @@ class DoosanAdapter:
             pose,
             vel=[velocity, velocity],
             acc=[acceleration, acceleration],
-            sync_type=0,
         )
 
     def move_home(self):

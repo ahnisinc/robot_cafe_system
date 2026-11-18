@@ -1,72 +1,52 @@
 # Coffee Process Backend Integration
 
-The coffee_process package publishes:
+설계: 프로젝트 루트 `WEB_ROBOT_INTEGRATION_DESIGN.md`
 
-    /coffee_process/status
+## 상태 발행
 
-Message type:
+`coffee_process_node`가 직접 발행한다.
 
-    cafe_interfaces/msg/ProcessStatus
+    /coffee_process/status   (cafe_interfaces/msg/ProcessStatus)
 
+상태가 바뀔 때마다 즉시, 그리고 1초마다 발행한다.
+
+- `state`: STOPPED / RESETTING / HOMED / IDLE / RUNNING / PAUSED
+- `order_state`: RUNNING / DONE / FAILED / "" — 다음 주문이 시작될 때까지 마지막 값을 유지한다.
 
 Flow:
 
-    ProcessManager
+    ProcessRunner (작업 스레드)
           |
           v
-    BackendProgressPublisher
+    /coffee_process/status
           |
           v
-    ROS2 Topic
+    rosbridge_server (ws://localhost:9090)
           |
           v
-    rosbridge_server
+    Flask ROSBridgeClient → Dispatcher (DB 주문 상태, 다음 주문 전송)
           |
           v
-    Flask ROSBridgeClient
-          |
-          v
-    Flask-SocketIO
-          |
-          v
-    JavaScript kiosk
+    Flask-SocketIO → JavaScript kiosk
 
+## 명령 서비스
 
-## Connecting it to ProcessManager
+| 서비스 | 타입 |
+|---|---|
+| `/coffee_process/execute_recipe` | `cafe_interfaces/srv/ExecuteRecipe` |
+| `/coffee_process/pause` | `std_srvs/srv/Trigger` |
+| `/coffee_process/resume` | `std_srvs/srv/Trigger` |
+| `/coffee_process/force_stop` | `std_srvs/srv/Trigger` |
+| `/coffee_process/start` | `std_srvs/srv/Trigger` |
 
-In coffee_process_node.py:
+## 실행
 
-    from .backend_bridge import (
-        BackendProgressPublisher
-    )
-
-Create:
-
-    self.progress_publisher = (
-        BackendProgressPublisher(self)
-    )
-
-
-During recipe execution:
-
-    self.progress_publisher.publish(
-        order_id,
-        recipe_id,
-        "RUNNING",
-        step["name"],
-        index,
-        total,
-        ((index + 1) / total) * 100,
-        "Processing"
-    )
-
+    ros2 run coffee_process coffee_process_node --ros-args \
+      -p recipe_dir:=<repo>/cobot1_ws/src/coffee_process/config/recipes \
+      -p io_file:=<repo>/config/robot/virtual/io.yaml
 
 The backend does NOT call DSR_ROBOT2.
 
 Robot control remains:
 
-    robot_control
-         |
-    robot_driver
-         |
-    Doosan API
+    coffee_process → robot_control → robot_driver → Doosan API

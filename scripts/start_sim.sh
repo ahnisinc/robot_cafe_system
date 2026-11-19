@@ -1,3 +1,6 @@
+#!/bin/bash
+# 가상 로봇 + ROS 노드 + rosbridge + 백엔드를 한 번에 실행. Ctrl+C 한 번으로 전부 종료.
+# 각 프로세스 로그: log/sim/<이름>.log
 
 source ~/cafe_env.sh
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

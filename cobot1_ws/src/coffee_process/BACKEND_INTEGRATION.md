@@ -1,6 +1,6 @@
 # Coffee Process Backend Integration
 
-설계: 프로젝트 루트 `WEB_ROBOT_INTEGRATION_DESIGN.md`
+설계: `docs/WEB_ROBOT_INTEGRATION_DESIGN.md`
 
 ## 상태 발행
 

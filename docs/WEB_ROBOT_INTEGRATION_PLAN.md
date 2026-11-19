@@ -8,7 +8,7 @@
 
 **Tech Stack:** ROS 2 Jazzy (rclpy), DSR_ROBOT2 / dsr_msgs2, onrobot_rg_msgs, std_srvs, Flask + Flask-SocketIO, websocket-client, SQLite, pytest, vanilla JS.
 
-**Spec:** `WEB_ROBOT_INTEGRATION_DESIGN.md` (프로젝트 루트). 구현자는 이 계획과 함께 반드시 읽는다.
+**Spec:** `docs/WEB_ROBOT_INTEGRATION_DESIGN.md`. 구현자는 이 계획과 함께 반드시 읽는다.
 
 ## Global Constraints
 

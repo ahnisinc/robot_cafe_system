@@ -31,13 +31,17 @@ async function orderCoffee(
 
         if (!response.ok) {
 
-            alert(
+            showMessage(
                 data.error
                 || "주문 실패"
             );
 
             return;
         }
+
+
+        myOrderId =
+            data.order_id;
 
 
         document
@@ -56,29 +60,91 @@ async function orderCoffee(
             data.recipe_name;
 
 
+        document
+            .getElementById(
+                "order-status"
+            )
+            .textContent =
+            data.queue_position > 0
+                ? "대기 " + data.queue_position + "번째"
+                : "제조 중";
+
+
     } catch (error) {
 
         console.error(
             error
         );
 
-        alert(
+        showMessage(
             "서버 연결 오류"
         );
     }
 }
 
 
-function emergencyStop() {
+async function sendControl(
+    command
+) {
 
-    alert(
-        "EMERGENCY STOP 요청"
-    );
+    if (!command) {
+        return;
+    }
 
-    /*
-     * 실제 구현에서는 여기서
-     * Flask API -> ROSBridge ->
-     * robot_control STOP service
-     * 로 연결한다.
-     */
+    try {
+
+        const response =
+            await fetch(
+                "/api/control/" + command,
+                { method: "POST" }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+            showMessage(data.error || "제어 명령 실패");
+            return;
+        }
+
+        if (!data.success) {
+            showMessage(data.message || "제어 명령 거절");
+        }
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+        showMessage(
+            "서버 연결 오류"
+        );
+    }
+}
+
+
+function showMessage(
+    text
+) {
+
+    document
+        .getElementById(
+            "process-message"
+        )
+        .textContent =
+        text;
+}
+
+
+for (const id of ["btn-pause", "btn-force", "btn-start"]) {
+
+    document
+        .getElementById(id)
+        .addEventListener(
+            "click",
+            function() {
+                sendControl(this.dataset.command);
+            }
+        );
 }

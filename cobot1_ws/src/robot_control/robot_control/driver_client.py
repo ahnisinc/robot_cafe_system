@@ -1,8 +1,12 @@
 import threading
 
 from rclpy.action import ActionClient
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+from std_srvs.srv import Trigger
 
 from cafe_interfaces.action import MoveJoint, MoveHome, MoveLine
+
+from .pausable_wait import wait_unless_paused
 
 
 class DriverActionClient:
@@ -18,11 +22,18 @@ class DriverActionClient:
 
         self.node = node
 
-        self._move_joint_client = ActionClient(node, MoveJoint, "/robot_driver/move_joint")
-        self._move_home_client = ActionClient(node, MoveHome, "/robot_driver/move_home")
-        self._move_line_client = ActionClient(node, MoveLine, "/robot_driver/move_line")
+        group = MutuallyExclusiveCallbackGroup()
 
-        self._active_goal_handle = None
+        self._move_joint_client = ActionClient(node, MoveJoint, "/robot_driver/move_joint", callback_group=group)
+        self._move_home_client = ActionClient(node, MoveHome, "/robot_driver/move_home", callback_group=group)
+        self._move_line_client = ActionClient(node, MoveLine, "/robot_driver/move_line", callback_group=group)
+
+        self._pause_client = node.create_client(Trigger, "/robot_driver/pause", callback_group=group)
+        self._resume_client = node.create_client(Trigger, "/robot_driver/resume", callback_group=group)
+        self._stop_client = node.create_client(Trigger, "/robot_driver/stop", callback_group=group)
+        self._clear_stop_client = node.create_client(Trigger, "/robot_driver/clear_stop", callback_group=group)
+
+        self.paused = False
 
     def _send_goal(self, client, goal_msg, timeout=30.0):
 
@@ -41,8 +52,6 @@ class DriverActionClient:
                 result_done.set()
                 return
 
-            self._active_goal_handle = goal_handle
-
             result_future = goal_handle.get_result_async()
             result_future.add_done_callback(on_result)
 
@@ -54,10 +63,8 @@ class DriverActionClient:
         send_future = client.send_goal_async(goal_msg)
         send_future.add_done_callback(on_goal_response)
 
-        if not result_done.wait(timeout):
+        if not wait_unless_paused(result_done, lambda: self.paused, timeout):
             raise RuntimeError("robot_driver action call timed out")
-
-        self._active_goal_handle = None
 
         if "error" in outcome:
             raise RuntimeError(outcome["error"])
@@ -94,7 +101,38 @@ class DriverActionClient:
 
         return self._send_goal(self._move_home_client, goal)
 
+    def pause(self):
+
+        self._trigger(self._pause_client)
+        self.paused = True
+
+    def resume(self):
+
+        self._trigger(self._resume_client)
+        self.paused = False
+
     def stop(self):
 
-        if self._active_goal_handle is not None:
-            self._active_goal_handle.cancel_goal_async()
+        self.paused = False
+        self._trigger(self._stop_client)
+
+    def clear_stop(self):
+
+        self._trigger(self._clear_stop_client)
+
+    def _trigger(self, client, timeout=5.0):
+
+        if not client.wait_for_service(timeout_sec=2.0):
+            raise RuntimeError(f"{client.srv_name} not available")
+
+        done = threading.Event()
+        future = client.call_async(Trigger.Request())
+        future.add_done_callback(lambda _: done.set())
+
+        if not done.wait(timeout):
+            raise RuntimeError(f"{client.srv_name} timed out")
+
+        result = future.result()
+
+        if not result.success:
+            raise RuntimeError(f"{client.srv_name}: {result.message}")

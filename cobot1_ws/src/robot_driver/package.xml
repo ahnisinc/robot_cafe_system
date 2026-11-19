@@ -18,6 +18,8 @@
 
   <exec_depend>rclpy</exec_depend>
   <depend>cafe_interfaces</depend>
+  <depend>dsr_msgs2</depend>
+  <depend>std_srvs</depend>
 
   <export>
     <build_type>ament_python</build_type>

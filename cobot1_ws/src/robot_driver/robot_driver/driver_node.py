@@ -1,9 +1,14 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
+import threading
+
+from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
 
 from cafe_interfaces.action import MoveJoint, MoveHome, MoveLine
+from cafe_interfaces.srv import SetDigitalOutput
 
+from .driver_control import DriverControlNode
 from .robot_driver import RobotDriver
 
 
@@ -61,10 +66,29 @@ class DriverNode(Node):
             cancel_callback=self._accept_cancel,
         )
 
+        self._set_output_srv = self.create_service(
+            SetDigitalOutput,
+            "/robot_driver/set_digital_output",
+            self.cb_set_digital_output,
+        )
+
         self.get_logger().info("Robot driver actions ready")
         self.get_logger().info("  /robot_driver/move_joint")
         self.get_logger().info("  /robot_driver/move_home")
         self.get_logger().info("  /robot_driver/move_line")
+
+    def cb_set_digital_output(self, request, response):
+
+        try:
+            self.driver.set_output(request.channel, request.value)
+            response.success = True
+            response.message = "OK"
+
+        except Exception as exc:
+            response.success = False
+            response.message = str(exc)
+
+        return response
 
     def _accept_goal(self, goal_request):
         return GoalResponse.ACCEPT
@@ -155,12 +179,25 @@ def main(args=None):
 
     node = DriverNode()
 
+    executor = SingleThreadedExecutor()
+    executor.add_node(node)
+
+    control_node = DriverControlNode(
+        node.get_parameter("robot_name").get_parameter_value().string_value,
+        node.driver.stop_event,
+    )
+    control_executor = MultiThreadedExecutor(num_threads=4)
+    control_executor.add_node(control_node)
+    threading.Thread(target=control_executor.spin, daemon=True).start()
+
     try:
-        rclpy.spin(node)
+        executor.spin()
 
     except KeyboardInterrupt:
         pass
 
     finally:
+        control_executor.shutdown()
+        control_node.destroy_node()
         node.destroy_node()
         rclpy.shutdown()

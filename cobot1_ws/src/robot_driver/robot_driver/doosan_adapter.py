@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import threading
+import time
+
 
 class DoosanAdapter:
     '''
@@ -19,6 +22,8 @@ class DoosanAdapter:
         self.robot_name = robot_name
         self.robot_model = robot_model
 
+        self.stop_event = threading.Event()
+
         try:
             # DSR_ROBOT2 reads these at import time to create
             # its ROS2 clients/publishers, so they must be set
@@ -33,7 +38,13 @@ class DoosanAdapter:
             # DR_init and leave __dsr__node as None for DSR_ROBOT2.
             setattr(DR_init, "__dsr__id", robot_name)
             setattr(DR_init, "__dsr__model", robot_model)
-            setattr(DR_init, "__dsr__node", node)
+            import rclpy
+
+            self.dsr_node = rclpy.create_node(
+                "robot_driver_dsr",
+                namespace=robot_name,
+            )
+            setattr(DR_init, "__dsr__node", self.dsr_node)
 
             import DSR_ROBOT2 as dsr
 
@@ -110,12 +121,13 @@ class DoosanAdapter:
 
         self._require_api()
 
-        return self.dsr.movej(
+        self._raise_if_stopped()
+        self.dsr.amovej(
             joints,
             vel=velocity,
             acc=acceleration,
-            sync_type=0,
         )
+        self._wait_motion()
 
     def move_line(
         self,
@@ -126,12 +138,46 @@ class DoosanAdapter:
 
         self._require_api()
 
-        return self.dsr.movel(
+        self._raise_if_stopped()
+        self.dsr.amovel(
             pose,
             vel=[velocity, velocity],
             acc=[acceleration, acceleration],
-            sync_type=0,
         )
+        self._wait_motion()
+
+    def _raise_if_stopped(self):
+
+        if self.stop_event.is_set():
+            raise RuntimeError("stopped")
+
+    def clear_stop(self):
+
+        self.stop_event.clear()
+
+    def _wait_motion(self, tick=0.1):
+
+        stop_deadline = None
+
+        while True:
+            status = self.dsr.check_motion()
+
+            if status == -1:
+                raise RuntimeError("check_motion failed")
+
+            if status == 0:
+                break
+
+            if self.stop_event.is_set():
+                if stop_deadline is None:
+                    stop_deadline = time.monotonic() + 3.0
+                elif time.monotonic() > stop_deadline:
+                    break
+
+            time.sleep(tick)
+
+        if self.stop_event.is_set():
+            raise RuntimeError("stopped")
 
     def move_home(self):
 

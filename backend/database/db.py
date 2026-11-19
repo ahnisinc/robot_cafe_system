@@ -239,3 +239,62 @@ def get_process_status():
 
     finally:
         connection.close()
+
+
+def _fetch_one(query, params=()):
+
+    connection = get_connection()
+
+    try:
+        row = connection.execute(query, params).fetchone()
+        return dict(row) if row else None
+
+    finally:
+        connection.close()
+
+
+def get_next_queued_order():
+    return _fetch_one(
+        "SELECT * FROM orders WHERE status = 'QUEUED' ORDER BY id LIMIT 1"
+    )
+
+
+def get_running_order():
+    return _fetch_one(
+        "SELECT * FROM orders WHERE status = 'RUNNING' ORDER BY id LIMIT 1"
+    )
+
+
+def set_order_status(order_id, status):
+
+    connection = get_connection()
+
+    try:
+        connection.execute(
+            """
+            UPDATE orders
+            SET status = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE order_id = ?
+            """,
+            (status, order_id),
+        )
+        connection.commit()
+
+    finally:
+        connection.close()
+
+
+def get_queue_position(order_id):
+    """대기 중이면 앞선 대기 주문 수 + 1, 대기 중이 아니면 0."""
+
+    row = _fetch_one(
+        """
+        SELECT COUNT(*) AS position
+        FROM orders
+        WHERE status = 'QUEUED'
+          AND id <= (SELECT id FROM orders WHERE order_id = ? AND status = 'QUEUED')
+        """,
+        (order_id,),
+    )
+
+    return row["position"] if row else 0

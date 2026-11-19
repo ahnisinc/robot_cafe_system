@@ -1,5 +1,6 @@
 # Python
 __pycache__/
+*_cache/
 *.pyc
 *.pyo
 *.pyd
@@ -22,3 +23,5 @@ log/
 *.db
 *.sqlite
 *.sqlite3
+.pytest_cache/
+.superpowers/

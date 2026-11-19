@@ -241,17 +241,20 @@ section {
 }
 
 
-.emergency {
+.controls {
 
-    text-align:
-        center;
+    display: flex;
+
+    gap: 16px;
+
+    justify-content: center;
 
     background:
         #301515;
 }
 
 
-.emergency button {
+.controls button {
 
     background:
         #c62828;
@@ -265,10 +268,25 @@ section {
         10px;
 
     padding:
-        20px 60px;
+        20px 40px;
 
     font-size:
         22px;
 
     cursor: pointer;
+}
+
+
+.controls button.resume {
+
+    background:
+        #2e7d32;
+}
+
+
+.controls button:disabled {
+
+    opacity: 0.35;
+
+    cursor: not-allowed;
 }

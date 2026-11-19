@@ -74,3 +74,15 @@ class MotionManager:
     def stop(self):
 
         return self.robot.stop()
+
+    def pause(self):
+
+        return self.robot.pause()
+
+    def resume(self):
+
+        return self.robot.resume()
+
+    def clear_stop(self):
+
+        return self.robot.clear_stop()

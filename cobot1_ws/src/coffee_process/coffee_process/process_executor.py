@@ -1,16 +1,15 @@
-import time
-
-
 class ProcessExecutor:
 
     def __init__(
         self,
         robot_control,
         io_manager,
+        wait,
     ):
 
         self.robot = robot_control
         self.io = io_manager
+        self.wait = wait
 
     def execute_step(
         self,
@@ -43,14 +42,9 @@ class ProcessExecutor:
             )
 
         if action == "wait":
-            time.sleep(float(step["seconds"]))
-
-            return True
+            return self.wait(float(step["seconds"]))
 
         if action == "home":
-            return self.robot.move_home()
-
-        if action == "stop":
-            return self.robot.stop()
+            return self.robot.move_to_pose("home", 30.0, 30.0)
 
         raise ValueError(f"Unknown process action: " f"{action}")
